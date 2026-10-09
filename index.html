@@ -573,6 +573,88 @@
     .resume-loading .ring{animation:none;}
   }
 
+  /* ---------- SOUND TOGGLE ---------- */
+  .sound-toggle{
+    position:fixed; right:20px; bottom:20px; z-index:60;
+    display:flex; align-items:center; gap:10px;
+    padding:10px 16px 10px 14px; border-radius:30px;
+    background:rgba(18,22,29,0.88); backdrop-filter:blur(10px);
+    border:1px solid var(--teal-light); color:var(--teal-light);
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.06em;
+    cursor:pointer; transition:background .2s, color .2s;
+  }
+  .sound-toggle:hover{background:var(--teal-light); color:var(--ink-900);}
+  .sound-toggle.on{background:var(--teal); border-color:var(--teal); color:var(--ink-900);}
+  .sound-toggle.on:hover{background:var(--teal-light); border-color:var(--teal-light);}
+  .sound-toggle .eq{display:flex; align-items:flex-end; gap:2px; height:14px;}
+  .sound-toggle .eq i{display:block; width:2px; height:3px; background:currentColor; border-radius:1px;}
+  .sound-toggle.on .eq i{animation:eq-bar 1.1s ease-in-out infinite;}
+  .sound-toggle.on .eq i:nth-child(2){animation-delay:.18s;}
+  .sound-toggle.on .eq i:nth-child(3){animation-delay:.36s;}
+  .sound-toggle.on .eq i:nth-child(4){animation-delay:.54s;}
+  @keyframes eq-bar{0%,100%{height:3px;} 50%{height:14px;}}
+  .sound-toggle.hint{animation:sound-pulse 2.2s ease-out infinite;}
+  @keyframes sound-pulse{
+    0%{box-shadow:0 0 0 0 rgba(224,149,94,0.55);}
+    100%{box-shadow:0 0 0 16px rgba(224,149,94,0);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .sound-toggle.on .eq i{animation:none; height:9px;}
+    .sound-toggle.hint{animation:none;}
+  }
+  @media (max-width:560px){
+    .sound-toggle{right:12px; bottom:12px; padding:10px 13px;}
+    .sound-toggle .st-label{display:none;}
+  }
+
+  /* ---------- SOUND TOOLTIP ---------- */
+  .sound-tip{
+    position:fixed; right:20px; bottom:74px; z-index:61;
+    width:min(280px, calc(100vw - 24px));
+    background:var(--ink-850); color:var(--text-light);
+    border:1px solid var(--teal-light); border-radius:8px;
+    padding:14px 16px 12px;
+    box-shadow:0 20px 40px -12px rgba(0,0,0,0.65);
+    opacity:0; visibility:hidden; transform:translateY(8px);
+    transition:opacity .2s ease, transform .2s ease, visibility .2s;
+    pointer-events:none;
+  }
+  .sound-tip.show{opacity:1; visibility:visible; transform:none;}
+  .sound-tip::after{
+    content:""; position:absolute; right:34px; bottom:-6px; width:10px; height:10px;
+    background:var(--ink-850); border-right:1px solid var(--teal-light); border-bottom:1px solid var(--teal-light);
+    transform:rotate(45deg);
+  }
+  .sound-tip .tip-eyebrow{
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--teal-light); display:flex; align-items:center; gap:8px; margin-bottom:8px;
+  }
+  .sound-tip .tip-eyebrow i{
+    width:7px; height:7px; border-radius:50%; background:var(--text-muted); display:inline-block;
+  }
+  .sound-tip.playing .tip-eyebrow i{background:var(--teal-light); box-shadow:0 0 0 0 rgba(224,149,94,.6); animation:sound-pulse 1.8s ease-out infinite;}
+  .sound-tip .tip-title{font-family:'Space Grotesk',sans-serif; font-size:17px; font-weight:600; color:var(--parchment); line-height:1.2;}
+  .sound-tip .tip-artist{font-size:12.5px; color:var(--text-muted); margin:2px 0 10px;}
+  .sound-tip .tip-rows{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; display:grid; gap:6px;
+    border-top:1px dotted var(--border-soft); padding-top:10px;
+  }
+  .sound-tip .tip-rows div{display:flex; justify-content:space-between; gap:12px;}
+  .sound-tip .tip-rows span:first-child{color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em; font-size:10px;}
+  .sound-tip .tip-rows span:last-child{color:var(--parchment); text-align:right;}
+  .sound-tip .tip-hint{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--text-muted);
+    margin-top:10px; padding-top:8px; border-top:1px dotted var(--border-soft);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .sound-tip{transition:none; transform:none;}
+    .sound-tip.playing .tip-eyebrow i{animation:none;}
+  }
+  @media (max-width:560px){
+    .sound-tip{right:12px; bottom:66px;}
+    .sound-tip::after{right:24px;}
+  }
+
   @media (max-width:1000px) and (min-width:861px){
     .skill-cols{grid-template-columns:repeat(3,1fr);}
     .cert-grid{grid-template-columns:repeat(2,1fr);}
@@ -1354,6 +1436,23 @@
 
 <footer>&copy; 2026 Omkar Kadam</footer>
 
+<button type="button" class="sound-toggle hint" id="soundToggle" aria-pressed="false" aria-label="Turn music on" aria-describedby="soundTip">
+  <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+  <span class="st-label">Sound off</span>
+</button>
+
+<div class="sound-tip" id="soundTip" role="tooltip">
+  <div class="tip-eyebrow"><i></i><span id="tipStatus">Background track</span></div>
+  <div class="tip-title" id="tipTitle"></div>
+  <div class="tip-artist" id="tipArtist"></div>
+  <div class="tip-rows">
+    <div><span>Style</span><span id="tipStyle"></span></div>
+    <div><span>Key · Tempo</span><span id="tipDetail"></span></div>
+    <div><span>Source</span><span id="tipSource"></span></div>
+  </div>
+  <div class="tip-hint" id="tipHint"></div>
+</div>
+
 <!-- ================= RESUME MODAL ================= -->
 <div class="modal" id="resumeModal" role="dialog" aria-modal="true" aria-labelledby="resumeTitle" aria-hidden="true">
   <div class="modal-dialog resume-dialog">
@@ -1569,6 +1668,481 @@
       document.body.appendChild(ta); ta.select();
       try{ document.execCommand('copy'); done(); }catch(err){}
       document.body.removeChild(ta);
+    }
+  });
+})();
+</script>
+
+<script>
+/* ===== Hero sound system =====
+   1) Set MUSIC_FILE to your own licensed audio file to use it as the background track.
+   2) If MUSIC_FILE is empty (or fails to load), an original heroic, city-night
+      groove is generated live with the Web Audio API.
+   Hover and click sounds are always generated ("thwip" web-shooter style swooshes). */
+(function(){
+  var MUSIC_FILE = '';        // e.g. 'audio/brand-new-day.mp3'  (file you have the rights to use)
+  var FILE_VOLUME = 0.5;      // 0 to 1, volume for MUSIC_FILE
+
+  // Info shown in the Sound button tooltip
+  var TRACK = {                       // the built-in generated track
+    title:  'Rooftop Run',
+    artist: 'Original composition',
+    style:  'Heroic hip-hop groove',
+    detail: 'C minor · 100 bpm',
+    source: 'Generated live in your browser'
+  };
+  var FILE_TRACK = {                  // shown instead when MUSIC_FILE is set and loads
+    title:  'Your track title',
+    artist: 'Artist name',
+    style:  'Genre / mood',
+    detail: 'Key · tempo (optional)',
+    source: 'Licensed audio file'
+  };
+
+  var AC = window.AudioContext || window.webkitAudioContext;
+  var btn = document.getElementById('soundToggle');
+  var label = btn.querySelector('.st-label');
+  if(!AC){ btn.style.display = 'none'; return; }
+
+  var KEY = 'ok-sound-pref';
+  var ctx, master, musicBus, fxBus, dryBus, reverb, noiseBuf;
+  var on = false, built = false, genRunning = false;
+  var voices = [], step = 0, nextT = 0, lastBlip = 0, hoverIdx = 2;
+  var schedTimer = null, fadeTimer = null;
+  var fileAudio = null, fileFailed = false;
+
+  // C minor cycle: Cm - Ab - Eb - Bb
+  var PAD = [
+    [65.41, 130.81, 196.00, 261.63, 311.13, 392.00],
+    [51.91, 103.83, 155.56, 207.65, 261.63, 311.13],
+    [77.78, 155.56, 233.08, 311.13, 392.00, 466.16],
+    [58.27, 116.54, 174.61, 233.08, 293.66, 349.23]
+  ];
+  var BASS = [65.41, 51.91, 77.78, 58.27];
+  var ARP = [
+    [523.25, 622.25, 783.99, 1046.50],
+    [523.25, 622.25, 830.61, 1046.50],
+    [466.16, 622.25, 783.99, 932.33],
+    [466.16, 587.33, 698.46, 932.33]
+  ];
+  var PATTERN = [0, 1, 2, 3, 2, 1, 2, 3];
+  var STEP = 60 / 100 / 4;          // 100 bpm, sixteenth-note steps
+  var STEPS_PER_CHORD = 32;         // two bars per chord
+
+  // C minor pentatonic for the little pings under each hover "thwip"
+  var HOVER = [523.25, 622.25, 698.46, 783.99, 932.33, 1046.50];
+
+  function makeReverb(){
+    var len = Math.floor(ctx.sampleRate * 2.2);
+    var buf = ctx.createBuffer(2, len, ctx.sampleRate);
+    for(var c = 0; c < 2; c++){
+      var d = buf.getChannelData(c);
+      for(var i = 0; i < len; i++){ d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.8); }
+    }
+    var conv = ctx.createConvolver();
+    conv.buffer = buf;
+    return conv;
+  }
+
+  function build(){
+    if(built) return;
+    built = true;
+    ctx = new AC();
+
+    var comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -16;
+    comp.ratio.value = 4;
+    comp.connect(ctx.destination);
+
+    master = ctx.createGain();
+    master.gain.value = 0;
+    master.connect(comp);
+
+    reverb = makeReverb();
+    var wet = ctx.createGain();
+    wet.gain.value = 0.35;
+    reverb.connect(wet);
+    wet.connect(master);
+
+    dryBus = ctx.createGain();
+    dryBus.gain.value = 1;
+    dryBus.connect(master);
+
+    musicBus = ctx.createGain();
+    musicBus.gain.value = 0.7;
+    musicBus.connect(master);
+    musicBus.connect(reverb);
+
+    fxBus = ctx.createGain();
+    fxBus.gain.value = 0.8;
+    fxBus.connect(master);
+    fxBus.connect(reverb);
+
+    noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+    var nd = noiseBuf.getChannelData(0);
+    for(var n = 0; n < nd.length; n++){ nd[n] = Math.random() * 2 - 1; }
+
+    // Dark string-like pad
+    var filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 1100;
+    filter.Q.value = 0.6;
+    var padGain = ctx.createGain();
+    padGain.gain.value = 0.85;
+    filter.connect(padGain);
+    padGain.connect(musicBus);
+
+    var lfo = ctx.createOscillator(), lfoAmt = ctx.createGain();
+    lfo.frequency.value = 0.09;
+    lfoAmt.gain.value = 320;
+    lfo.connect(lfoAmt);
+    lfoAmt.connect(filter.frequency);
+    lfo.start();
+
+    for(var v = 0; v < 6; v++){
+      for(var k = 0; k < 2; k++){
+        var o = ctx.createOscillator();
+        o.type = (v % 2 === 0) ? 'sawtooth' : 'triangle';
+        o.frequency.value = PAD[0][v];
+        o.detune.value = k === 0 ? -9 : 9;
+        var g = ctx.createGain();
+        g.gain.value = (v % 2 === 0) ? 0.02 : 0.034;
+        o.connect(g); g.connect(filter);
+        o.start();
+        voices.push({osc: o, idx: v});
+      }
+    }
+  }
+
+  /* ---- generated groove parts ---- */
+  function kick(t){
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(150, t);
+    o.frequency.exponentialRampToValueAtTime(40, t + 0.14);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.6, t + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.34);
+    o.connect(g); g.connect(dryBus);
+    o.start(t); o.stop(t + 0.38);
+  }
+
+  function noiseHit(t, ftype, freq, vol, dur, dest){
+    var s = ctx.createBufferSource();
+    s.buffer = noiseBuf;
+    var f = ctx.createBiquadFilter();
+    f.type = ftype; f.frequency.value = freq; f.Q.value = 0.8;
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(dest);
+    s.start(t); s.stop(t + dur + 0.02);
+  }
+
+  function snare(t){
+    noiseHit(t, 'bandpass', 2100, 0.24, 0.2, musicBus);
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(210, t);
+    o.frequency.exponentialRampToValueAtTime(120, t + 0.1);
+    g.gain.setValueAtTime(0.2, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
+    o.connect(g); g.connect(dryBus);
+    o.start(t); o.stop(t + 0.16);
+  }
+
+  function subBass(t, freq, len){
+    var o = ctx.createOscillator(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    o.type = 'sawtooth'; o.frequency.value = freq;
+    f.type = 'lowpass';
+    f.frequency.setValueAtTime(420, t);
+    f.frequency.exponentialRampToValueAtTime(130, t + len);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.2, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+    o.connect(f); f.connect(g); g.connect(dryBus);
+    o.start(t); o.stop(t + len + 0.03);
+  }
+
+  function leadPluck(t, freq, vol){
+    var o = ctx.createOscillator(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+    o.type = 'sawtooth'; o.frequency.value = freq;
+    f.type = 'lowpass';
+    f.frequency.setValueAtTime(3200, t);
+    f.frequency.exponentialRampToValueAtTime(800, t + 0.2);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
+    o.connect(f); f.connect(g); g.connect(musicBus);
+    o.start(t); o.stop(t + 0.35);
+  }
+
+  // Heroic brass-like chord hit on the bar line
+  function heroHit(t, freqs){
+    freqs.forEach(function(freq){
+      var a = ctx.createOscillator(), b = ctx.createOscillator();
+      var f = ctx.createBiquadFilter(), g = ctx.createGain();
+      a.type = 'sawtooth'; b.type = 'sawtooth';
+      a.frequency.value = freq; b.frequency.value = freq;
+      a.detune.value = -8; b.detune.value = 8;
+      f.type = 'lowpass';
+      f.frequency.setValueAtTime(500, t);
+      f.frequency.exponentialRampToValueAtTime(2600, t + 0.12);
+      f.frequency.exponentialRampToValueAtTime(700, t + 0.7);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.03, t + 0.06);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.9);
+      a.connect(f); b.connect(f); f.connect(g); g.connect(musicBus);
+      a.start(t); b.start(t); a.stop(t + 0.95); b.stop(t + 0.95);
+    });
+  }
+
+  function playStep(s, t){
+    var ci = Math.floor(s / STEPS_PER_CHORD) % PAD.length;
+    var bar = s % 16;
+    if(s % STEPS_PER_CHORD === 0){
+      voices.forEach(function(v){ v.osc.frequency.setTargetAtTime(PAD[ci][v.idx], t, 0.08); });
+    }
+    // half-time hip-hop drum groove
+    if(bar === 0 || bar === 7 || bar === 10) kick(t);
+    if(bar === 4 || bar === 12) snare(t);
+    if(bar % 2 === 0) noiseHit(t + (bar % 4 === 2 ? 0.012 : 0), 'highpass', 7500, bar % 4 === 2 ? 0.08 : 0.05, 0.05, dryBus);
+    if(bar === 15) noiseHit(t, 'highpass', 6500, 0.05, 0.04, dryBus);
+    // bass
+    if(bar === 0) subBass(t, BASS[ci], 0.55);
+    if(bar === 7 || bar === 10) subBass(t, BASS[ci] * (bar === 10 ? 1.5 : 1), 0.22);
+    // arpeggio on eighth notes
+    if(bar % 2 === 0) leadPluck(t, ARP[ci][PATTERN[(bar / 2) % 8]], bar === 0 ? 0.045 : 0.028);
+    // heroic hit at the start of each chord
+    if(s % STEPS_PER_CHORD === 0){
+      heroHit(t, [PAD[ci][2], PAD[ci][3], PAD[ci][4]]);
+    }
+  }
+
+  function schedule(){
+    if(!genRunning) return;
+    while(nextT < ctx.currentTime + 0.2){
+      playStep(step, nextT);
+      nextT += STEP;
+      step++;
+    }
+  }
+
+  function startGenerated(){
+    if(genRunning) return;
+    genRunning = true;
+    step = 0;
+    nextT = ctx.currentTime + 0.1;
+    voices.forEach(function(v){ v.osc.frequency.value = PAD[0][v.idx]; });
+    schedTimer = setInterval(schedule, 50);
+  }
+  function stopGenerated(){
+    genRunning = false;
+    clearInterval(schedTimer);
+  }
+
+  /* ---- optional user-supplied track ---- */
+  function fadeFile(target, done){
+    clearInterval(fadeTimer);
+    fadeTimer = setInterval(function(){
+      var d = target - fileAudio.volume;
+      if(Math.abs(d) < 0.03){
+        fileAudio.volume = target;
+        clearInterval(fadeTimer);
+        if(done) done();
+      } else {
+        fileAudio.volume = Math.max(0, Math.min(1, fileAudio.volume + (d > 0 ? 0.03 : -0.03)));
+      }
+    }, 60);
+  }
+  if(MUSIC_FILE){
+    fileAudio = new Audio(MUSIC_FILE);
+    fileAudio.loop = true;
+    fileAudio.preload = 'none';
+    fileAudio.volume = 0;
+    fileAudio.addEventListener('error', function(){
+      fileFailed = true;
+      if(on) startGenerated();
+    });
+  }
+
+  function start(){
+    build();
+    ctx.resume();
+    on = true;
+    master.gain.cancelScheduledValues(ctx.currentTime);
+    master.gain.setTargetAtTime(0.8, ctx.currentTime, 0.8);
+    if(fileAudio && !fileFailed){
+      var p = fileAudio.play();
+      if(p && p.catch){ p.catch(function(){ fileFailed = true; if(on) startGenerated(); }); }
+      fadeFile(FILE_VOLUME);
+    } else {
+      startGenerated();
+    }
+    setUI(true);
+  }
+
+  function stop(){
+    on = false;
+    stopGenerated();
+    if(fileAudio && !fileAudio.paused){ fadeFile(0, function(){ fileAudio.pause(); }); }
+    if(ctx){
+      master.gain.cancelScheduledValues(ctx.currentTime);
+      master.gain.setTargetAtTime(0, ctx.currentTime, 0.2);
+      setTimeout(function(){ if(!on && ctx) ctx.suspend(); }, 1000);
+    }
+    setUI(false);
+  }
+
+  function setUI(state){
+    btn.classList.toggle('on', state);
+    btn.classList.remove('hint');
+    btn.setAttribute('aria-pressed', state ? 'true' : 'false');
+    btn.setAttribute('aria-label', state ? 'Turn music off' : 'Turn music on');
+    label.textContent = state ? 'Sound on' : 'Sound off';
+    try{ localStorage.setItem(KEY, state ? 'on' : 'off'); }catch(e){}
+    renderTip();
+    if(state) flashTip();
+  }
+
+  /* ---- UI sounds: "thwip" web-shooter swooshes ---- */
+  function thwip(vol, dur, startFreq){
+    var t = ctx.currentTime;
+    // airy burst: band-pass noise sweeping down fast
+    var s = ctx.createBufferSource();
+    s.buffer = noiseBuf;
+    var f = ctx.createBiquadFilter();
+    f.type = 'bandpass';
+    f.Q.value = 2.2;
+    f.frequency.setValueAtTime(startFreq, t);
+    f.frequency.exponentialRampToValueAtTime(startFreq * 0.22, t + dur);
+    var g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f); f.connect(g); g.connect(fxBus);
+    s.start(t); s.stop(t + dur + 0.03);
+    // the "pew" under it: fast downward sine zip
+    var o = ctx.createOscillator(), og = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(startFreq * 0.55, t);
+    o.frequency.exponentialRampToValueAtTime(startFreq * 0.12, t + dur * 0.9);
+    og.gain.setValueAtTime(0.0001, t);
+    og.gain.exponentialRampToValueAtTime(vol * 0.5, t + 0.01);
+    og.gain.exponentialRampToValueAtTime(0.0001, t + dur * 0.9);
+    o.connect(og); og.connect(fxBus);
+    o.start(t); o.stop(t + dur);
+  }
+
+  function ping(freq, vol){
+    var t = ctx.currentTime + 0.05;
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'triangle'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+    o.connect(g); g.connect(fxBus);
+    o.start(t); o.stop(t + 0.25);
+  }
+
+  function blip(){
+    if(!on || !ctx) return;
+    var now = performance.now();
+    if(now - lastBlip < 90) return;
+    lastBlip = now;
+    thwip(0.09, 0.12, 2600 + Math.random() * 900);
+    var moves = [-1, 1, 1, 2];
+    hoverIdx += moves[Math.floor(Math.random() * moves.length)];
+    if(hoverIdx < 0) hoverIdx = 1;
+    if(hoverIdx > HOVER.length - 1) hoverIdx = HOVER.length - 2;
+    ping(HOVER[hoverIdx], 0.03);
+  }
+
+  function impact(){
+    if(!on || !ctx) return;
+    var t = ctx.currentTime;
+    thwip(0.16, 0.22, 3400);
+    // web-hits-wall thud
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(140, t + 0.1);
+    o.frequency.exponentialRampToValueAtTime(48, t + 0.26);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.setValueAtTime(0.0001, t + 0.1);
+    g.gain.exponentialRampToValueAtTime(0.4, t + 0.104);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.4);
+    o.connect(g); g.connect(dryBus);
+    o.start(t); o.stop(t + 0.45);
+    ping(783.99, 0.045);
+    setTimeout(function(){ if(on) ping(1046.50, 0.04); }, 80);
+  }
+
+  /* ---- tooltip with song info ---- */
+  var tip = document.getElementById('soundTip');
+  var tipTimer = null;
+  function setText(id, v){ document.getElementById(id).textContent = v; }
+  function renderTip(){
+    var t = (fileAudio && !fileFailed) ? FILE_TRACK : TRACK;
+    setText('tipTitle', t.title);
+    setText('tipArtist', t.artist);
+    setText('tipStyle', t.style);
+    setText('tipDetail', t.detail);
+    setText('tipSource', t.source);
+    setText('tipStatus', on ? 'Now playing' : 'Background track');
+    setText('tipHint', on ? 'Click to turn sound off' : 'Click to turn sound on');
+    tip.classList.toggle('playing', on);
+  }
+  function showTip(){ renderTip(); tip.classList.add('show'); }
+  function hideTip(){ clearTimeout(tipTimer); tip.classList.remove('show'); }
+  function flashTip(){            // also helps touch screens, which have no hover
+    showTip();
+    clearTimeout(tipTimer);
+    tipTimer = setTimeout(function(){ tip.classList.remove('show'); }, 3800);
+  }
+  btn.addEventListener('mouseenter', showTip);
+  btn.addEventListener('mouseleave', hideTip);
+  btn.addEventListener('focus', function(){ if(btn.matches(':focus-visible')) showTip(); });
+  btn.addEventListener('blur', hideTip);
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') hideTip(); });
+  renderTip();
+
+  var HOVER_SEL = 'a, button, .stamp, .cert-card, .social-card, .contact-row';
+  document.addEventListener('mouseover', function(e){
+    var el = e.target.closest ? e.target.closest(HOVER_SEL) : null;
+    if(!el) return;
+    if(e.relatedTarget && el.contains(e.relatedTarget)) return;
+    if(el === btn) return;
+    blip();
+  });
+  document.addEventListener('click', function(e){
+    var el = e.target.closest ? e.target.closest('a, button') : null;
+    if(el && el !== btn) impact();
+  });
+
+  btn.addEventListener('click', function(){ on ? stop() : start(); });
+
+  // Autoplay is blocked until a gesture: if sound was on last visit, resume on first interaction
+  var pref = null;
+  try{ pref = localStorage.getItem(KEY); }catch(e){}
+  if(pref === 'on'){
+    var resumeOnce = function(e){
+      document.removeEventListener('pointerdown', resumeOnce, true);
+      document.removeEventListener('keydown', resumeOnce, true);
+      if(!on && !btn.contains(e.target)) start();
+    };
+    document.addEventListener('pointerdown', resumeOnce, true);
+    document.addEventListener('keydown', resumeOnce, true);
+  }
+
+  // Pause everything when the tab is hidden
+  document.addEventListener('visibilitychange', function(){
+    if(!on) return;
+    if(document.hidden){
+      if(ctx) ctx.suspend();
+      if(fileAudio) fileAudio.pause();
+    } else {
+      if(ctx) ctx.resume();
+      if(fileAudio && !fileFailed) fileAudio.play().catch(function(){});
     }
   });
 })();
