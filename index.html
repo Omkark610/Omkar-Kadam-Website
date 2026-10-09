@@ -42,10 +42,12 @@
     line-height:1.6;
     overflow-x:hidden;
   }
+  body.modal-open{overflow:hidden;}
   ::selection{background:var(--teal); color:var(--ink-900);}
   a{color:inherit; text-decoration:none;}
   .mono{font-family:'IBM Plex Mono', monospace;}
   .display{font-family:'Space Grotesk', sans-serif;}
+  :focus-visible{outline:2px solid var(--teal-light); outline-offset:3px;}
 
   /* texture */
   #starfield{
@@ -95,6 +97,7 @@
     .nav-mark .chip{animation:none;}
     .contact-stamp{animation:none;}
     .passport-photo{animation:none;}
+    .modal, .modal-dialog{transition:none !important;}
   }
   nav ul{list-style:none; display:flex; gap:28px;}
   nav ul a{
@@ -103,13 +106,18 @@
     color:var(--text-muted); transition:color .2s;
   }
   nav ul a:hover{color:var(--teal-light);}
+  .nav-actions{display:flex; align-items:center; gap:10px;}
   .nav-cta{
     font-family:'IBM Plex Mono', monospace; font-size:12px;
     border:1px solid var(--teal-light); color:var(--teal-light);
+    background:transparent; cursor:pointer;
     padding:8px 14px; border-radius:3px; letter-spacing:.06em;
     transition:all .2s;
   }
   .nav-cta:hover{background:var(--teal-light); color:var(--ink-900);}
+  .nav-cta.solid{background:var(--teal); border-color:var(--teal); color:var(--ink-900); font-weight:600;}
+  .nav-cta.solid:hover{background:var(--teal-light); border-color:var(--teal-light);}
+  .nav-cta .ico{display:inline-block; margin-right:6px; font-size:11px;}
   .nav-toggle{display:none;}
 
   /* ---------- HERO ---------- */
@@ -390,6 +398,181 @@
 
   footer{padding:34px 0; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--text-muted);}
 
+  /* ---------- MODALS (shared) ---------- */
+  .modal{
+    position:fixed; inset:0; z-index:100;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+    background:rgba(10,12,16,0.74);
+    backdrop-filter:blur(6px);
+    opacity:0; visibility:hidden;
+    transition:opacity .25s ease, visibility .25s ease;
+  }
+  .modal.open{opacity:1; visibility:visible;}
+  .modal-dialog{
+    position:relative;
+    transform:translateY(16px) scale(.98);
+    transition:transform .3s cubic-bezier(.2,.8,.2,1);
+  }
+  .modal.open .modal-dialog{transform:none;}
+  .modal-close{
+    width:34px; height:34px; border-radius:50%; flex-shrink:0;
+    border:1px solid var(--teal-light); color:var(--teal-light); background:transparent;
+    font-family:'IBM Plex Mono',monospace; font-size:16px; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:background .2s, color .2s, transform .2s;
+  }
+  .modal-close:hover{background:var(--teal-light); color:var(--ink-900); transform:rotate(90deg);}
+
+  /* ---------- RESUME MODAL ---------- */
+  .resume-dialog{
+    width:min(980px, 100%); height:min(92vh, 900px);
+    display:flex; flex-direction:column;
+    background:var(--ink-850);
+    border:1px solid var(--border-soft); border-radius:10px;
+    box-shadow:0 40px 80px -20px rgba(0,0,0,0.7);
+    overflow:hidden;
+  }
+  .resume-head{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:16px 20px; border-bottom:1px solid var(--border-soft);
+    background:var(--ink-800);
+  }
+  .resume-title{display:flex; align-items:center; gap:12px; min-width:0;}
+  .resume-title .chip{
+    width:34px; height:34px; border-radius:50%; flex-shrink:0;
+    border:1.5px solid var(--teal-light); color:var(--teal-light);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; position:relative;
+  }
+  .resume-title .chip::before{content:""; position:absolute; inset:4px; border:1px dotted var(--teal-light); border-radius:50%; opacity:.5;}
+  .resume-title h2{
+    font-family:'Space Grotesk',sans-serif; font-size:17px; font-weight:600; color:var(--parchment);
+    line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .resume-title p{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-muted);}
+  .resume-tools{display:flex; align-items:center; gap:10px;}
+  .tool-btn{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.05em;
+    border:1px solid var(--border-soft); color:var(--text-light);
+    padding:8px 13px; border-radius:3px; transition:border-color .2s, color .2s, background .2s;
+    white-space:nowrap;
+  }
+  .tool-btn:hover{border-color:var(--teal-light); color:var(--teal-light);}
+  .tool-btn.primary{background:var(--teal); border-color:var(--teal); color:var(--ink-900); font-weight:600;}
+  .tool-btn.primary:hover{background:var(--teal-light); border-color:var(--teal-light); color:var(--ink-900);}
+  .resume-body{
+    flex:1; min-height:0; position:relative;
+    padding:14px; background:var(--ink-900);
+  }
+  .resume-frame{
+    position:relative; width:100%; height:100%;
+    border:6px solid var(--parchment); border-radius:4px;
+    background:var(--parchment);
+    box-shadow:0 0 0 1px var(--parchment-dim);
+    overflow:hidden;
+  }
+  .resume-frame object{position:relative; z-index:2; width:100%; height:100%; display:block; border:0;}
+  .resume-loading{
+    position:absolute; inset:0; z-index:1;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+    font-family:'IBM Plex Mono',monospace; font-size:12px; color:#6b6450; letter-spacing:.06em;
+  }
+  .resume-loading .ring{
+    width:38px; height:38px; border-radius:50%;
+    border:2px dashed var(--stamp-red);
+    animation:spin-slow 2.4s linear infinite;
+  }
+  .resume-fallback{
+    padding:40px 28px; text-align:center; color:#2a2620; height:100%;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+    background:var(--parchment);
+  }
+  .resume-fallback h3{font-family:'Space Grotesk',sans-serif; font-size:20px;}
+  .resume-fallback p{font-size:14px; color:#5c5645; max-width:36ch;}
+  .resume-fallback .btn-primary{display:inline-block; margin-top:6px;}
+
+  /* ---------- HIRE ME MODAL (passport style) ---------- */
+  .hire-dialog{
+    width:min(460px, 100%);
+    background:var(--parchment); color:#2a2620;
+    border-radius:6px; border:1px solid var(--parchment-dim);
+    padding:30px 30px 34px;
+    box-shadow:0 40px 80px -20px rgba(0,0,0,0.7);
+  }
+  .hire-dialog::after{
+    content:""; position:absolute; inset:8px;
+    border:1px dashed rgba(42,38,32,0.35); border-radius:3px; pointer-events:none;
+  }
+  .hire-dialog .modal-close{
+    position:absolute; top:16px; right:16px; z-index:3;
+    border-color:#2a2620; color:#2a2620;
+  }
+  .hire-dialog .modal-close:hover{background:#2a2620; color:var(--parchment);}
+  .hire-top{
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+    color:#5c5645; margin-bottom:20px; padding-right:44px;
+  }
+  .hire-avatar{
+    width:58px; height:58px; border-radius:50%;
+    background:linear-gradient(135deg, var(--teal), var(--ink-800));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:20px; color:var(--parchment);
+    border:3px solid #fff8e8; margin-bottom:16px;
+  }
+  .hire-dialog h2{
+    font-family:'Space Grotesk',sans-serif; font-size:26px; line-height:1.15; font-weight:600;
+    margin-bottom:8px; color:#2a2620;
+  }
+  .hire-lede{font-size:14.5px; color:#5c5645; margin-bottom:20px; max-width:38ch;}
+  .hire-tags{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;}
+  .hire-tags span{
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.05em;
+    border:1px solid rgba(42,38,32,0.35); color:#5c5645; padding:3px 10px; border-radius:20px;
+  }
+  .hire-email{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    border-top:1px dotted rgba(42,38,32,0.4); border-bottom:1px dotted rgba(42,38,32,0.4);
+    padding:12px 0; margin-bottom:22px;
+  }
+  .hire-email .lbl{
+    display:block; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em;
+    text-transform:uppercase; color:#6b6450;
+  }
+  .hire-email .val{font-family:'IBM Plex Mono',monospace; font-size:13.5px; color:#2a2620; word-break:break-all;}
+  .copy-btn{
+    font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.05em;
+    border:1px solid #2a2620; color:#2a2620; background:transparent; cursor:pointer;
+    padding:7px 12px; border-radius:3px; flex-shrink:0; transition:background .2s, color .2s;
+  }
+  .copy-btn:hover{background:#2a2620; color:var(--parchment);}
+  .copy-btn.done{background:var(--stamp-red); border-color:var(--stamp-red); color:var(--parchment);}
+  .hire-actions{display:flex; gap:12px; flex-wrap:wrap; position:relative; z-index:3;}
+  .hire-actions .btn-primary, .hire-actions .btn-ghost{font-size:12.5px; padding:12px 18px; cursor:pointer;}
+  .hire-actions .btn-ghost{border-color:rgba(42,38,32,0.45); color:#2a2620; background:transparent;}
+  .hire-actions .btn-ghost:hover{border-color:var(--stamp-red); color:var(--stamp-red);}
+  .hire-stamp{
+    position:absolute; bottom:-16px; right:-12px; z-index:4;
+    width:84px; height:84px; border-radius:50%;
+    border:2.5px solid var(--stamp-red); color:var(--stamp-red);
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:.05em; text-transform:uppercase;
+    transform:rotate(-14deg) scale(1.6); opacity:0;
+    background:rgba(233,226,206,0.55);
+    pointer-events:none;
+  }
+  .hire-stamp::before{content:""; position:absolute; inset:4px; border:1px dashed var(--stamp-red); border-radius:50%; opacity:.6;}
+  .modal.open .hire-stamp{animation:stamp-in .45s .25s cubic-bezier(.2,.9,.3,1.2) forwards;}
+  @keyframes stamp-in{
+    0%{transform:rotate(-14deg) scale(1.6); opacity:0;}
+    100%{transform:rotate(-14deg) scale(1); opacity:.88;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .modal.open .hire-stamp{animation:none; transform:rotate(-14deg); opacity:.88;}
+    .modal-close:hover{transform:none;}
+    .resume-loading .ring{animation:none;}
+  }
+
   @media (max-width:1000px) and (min-width:861px){
     .skill-cols{grid-template-columns:repeat(3,1fr);}
     .cert-grid{grid-template-columns:repeat(2,1fr);}
@@ -414,6 +597,20 @@
     nav ul{display:none;}
     h1.display{font-size:38px;}
   }
+  @media (max-width:560px){
+    .nav-inner{padding:14px 18px;}
+    .nav-mark span.nm{display:none;}
+    .nav-cta{padding:7px 11px;}
+    .modal{padding:0; align-items:flex-end;}
+    .resume-dialog{width:100%; height:94vh; border-radius:14px 14px 0 0;}
+    .resume-head{padding:12px 14px;}
+    .resume-title p{display:none;}
+    .tool-btn .t-long{display:none;}
+    .resume-body{padding:8px;}
+    .resume-frame{border-width:4px;}
+    .hire-dialog{width:100%; border-radius:14px 14px 0 0; padding:26px 22px 40px;}
+    .hire-stamp{right:14px; bottom:10px;}
+  }
 </style>
 </head>
 <body>
@@ -421,7 +618,7 @@
 
 <header class="nav">
   <div class="nav-inner">
-    <div class="nav-mark"><span class="chip">OK</span> OMKAR KADAM</div>
+    <div class="nav-mark"><span class="chip">OK</span> <span class="nm">OMKAR KADAM</span></div>
     <nav><ul>
       <li><a href="#experience">Experience</a></li>
       <li><a href="#projects">Projects</a></li>
@@ -429,7 +626,10 @@
       <li><a href="#certifications">Certifications</a></li>
       <li><a href="#social">Connect</a></li>
     </ul></nav>
-    <a class="nav-cta" href="#" onclick="alert('Please connect with me on Email: Omkark610pub@gmail.com'); return false;">Hire me</a>
+    <div class="nav-actions">
+      <button type="button" class="nav-cta" id="resumeBtn" aria-haspopup="dialog" aria-controls="resumeModal"><span class="ico" aria-hidden="true">▤</span>Resume</button>
+      <button type="button" class="nav-cta solid" id="hireBtn" aria-haspopup="dialog" aria-controls="hireModal">Hire me</button>
+    </div>
   </div>
 </header>
 
@@ -1154,6 +1354,57 @@
 
 <footer>&copy; 2026 Omkar Kadam</footer>
 
+<!-- ================= RESUME MODAL ================= -->
+<div class="modal" id="resumeModal" role="dialog" aria-modal="true" aria-labelledby="resumeTitle" aria-hidden="true">
+  <div class="modal-dialog resume-dialog">
+    <div class="resume-head">
+      <div class="resume-title">
+        <div class="chip" aria-hidden="true">OK</div>
+        <div style="min-width:0;">
+          <h2 id="resumeTitle">Omkar Kadam — Résumé</h2>
+          <p>AI Fullstack Software Developer · PDF</p>
+        </div>
+      </div>
+      <div class="resume-tools">
+        <a class="tool-btn" href="https://omkarkadam.in/OmkarKadamResume.pdf" target="_blank" rel="noopener"><span class="t-long">Open in new tab </span>↗</a>
+        <a class="tool-btn primary" href="https://omkarkadam.in/OmkarKadamResume.pdf" download="OmkarKadamResume.pdf"><span class="t-long">Download </span>↓</a>
+        <button type="button" class="modal-close" data-close aria-label="Close résumé">✕</button>
+      </div>
+    </div>
+    <div class="resume-body">
+      <div class="resume-frame" id="resumeFrame">
+        <div class="resume-loading" aria-hidden="true"><div class="ring"></div>Loading résumé…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= HIRE ME MODAL ================= -->
+<div class="modal" id="hireModal" role="dialog" aria-modal="true" aria-labelledby="hireTitle" aria-hidden="true">
+  <div class="modal-dialog hire-dialog">
+    <button type="button" class="modal-close" data-close aria-label="Close">✕</button>
+    <div class="hire-top">Contact · No. 610</div>
+    <div class="hire-avatar" aria-hidden="true">OK</div>
+    <h2 id="hireTitle">Let's build something new</h2>
+    <p class="hire-lede">Thanks for stopping by. I'm open to full-time roles, consulting and freelance work, and I usually reply within a day.</p>
+    <div class="hire-tags">
+      <span>Full-time</span><span>Consulting</span><span>Freelance</span><span>Laravel · MERN · AI</span>
+    </div>
+    <div class="hire-email">
+      <div>
+        <span class="lbl">Email</span>
+        <span class="val" id="hireEmail">Omkark610pub@gmail.com</span>
+      </div>
+      <button type="button" class="copy-btn" id="copyEmail">Copy</button>
+    </div>
+    <div class="hire-actions">
+      <a class="btn-primary" href="mailto:Omkark610pub@gmail.com?subject=Let%27s%20work%20together&body=Hi%20Omkar%2C%0A%0A">Send an email</a>
+      <a class="btn-ghost" href="https://www.linkedin.com/in/omkark610/" target="_blank" rel="noopener">Connect on LinkedIn</a>
+    </div>
+    <div class="hire-stamp" aria-hidden="true">OPEN<br>TO<br>WORK</div>
+  </div>
+</div>
+
 <script>
 (function(){
   var canvas = document.getElementById('starfield');
@@ -1219,6 +1470,107 @@
   window.addEventListener('resize', resize);
   resize();
   requestAnimationFrame(draw);
+})();
+</script>
+
+<script>
+(function(){
+  var RESUME_URL = 'https://omkarkadam.in/OmkarKadamResume.pdf';
+  var resumeModal = document.getElementById('resumeModal');
+  var hireModal   = document.getElementById('hireModal');
+  var resumeFrame = document.getElementById('resumeFrame');
+  var activeModal = null;
+  var lastFocus   = null;
+  var resumeLoaded = false;
+
+  var FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+  function loadResume(){
+    if(resumeLoaded) return;
+    resumeLoaded = true;
+    var obj = document.createElement('object');
+    obj.data = RESUME_URL + '#view=FitH&toolbar=0&navpanes=0';
+    obj.type = 'application/pdf';
+    obj.setAttribute('aria-label', 'Omkar Kadam résumé PDF');
+    obj.innerHTML =
+      '<div class="resume-fallback">' +
+        '<h3>Your browser can\u2019t preview PDFs here</h3>' +
+        '<p>Open the r\u00e9sum\u00e9 in a new tab or download it to read.</p>' +
+        '<a class="btn-primary" href="' + RESUME_URL + '" target="_blank" rel="noopener">Open r\u00e9sum\u00e9</a>' +
+      '</div>';
+    resumeFrame.appendChild(obj);
+  }
+
+  function openModal(modal, trigger){
+    if(activeModal) closeModal(true);
+    lastFocus = trigger || document.activeElement;
+    activeModal = modal;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+    var closeBtn = modal.querySelector('[data-close]');
+    setTimeout(function(){ (closeBtn || modal).focus(); }, 60);
+  }
+
+  function closeModal(skipFocus){
+    if(!activeModal) return;
+    activeModal.classList.remove('open');
+    activeModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    activeModal = null;
+    if(!skipFocus && lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  document.getElementById('resumeBtn').addEventListener('click', function(e){
+    loadResume();
+    openModal(resumeModal, e.currentTarget);
+  });
+  document.getElementById('hireBtn').addEventListener('click', function(e){
+    openModal(hireModal, e.currentTarget);
+  });
+
+  [resumeModal, hireModal].forEach(function(m){
+    m.addEventListener('mousedown', function(e){
+      if(e.target === m) closeModal();
+    });
+    m.querySelectorAll('[data-close]').forEach(function(b){
+      b.addEventListener('click', function(){ closeModal(); });
+    });
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(!activeModal) return;
+    if(e.key === 'Escape'){ closeModal(); return; }
+    if(e.key === 'Tab'){
+      var items = Array.prototype.slice.call(activeModal.querySelectorAll(FOCUSABLE))
+        .filter(function(el){ return el.offsetParent !== null; });
+      if(!items.length) return;
+      var first = items[0], last = items[items.length - 1];
+      if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+    }
+  });
+
+  // Copy email
+  var copyBtn = document.getElementById('copyEmail');
+  var emailTxt = document.getElementById('hireEmail').textContent.trim();
+  copyBtn.addEventListener('click', function(){
+    function done(){
+      copyBtn.textContent = 'Copied ✓';
+      copyBtn.classList.add('done');
+      setTimeout(function(){ copyBtn.textContent = 'Copy'; copyBtn.classList.remove('done'); }, 1800);
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(emailTxt).then(done, fallback);
+    } else { fallback(); }
+    function fallback(){
+      var ta = document.createElement('textarea');
+      ta.value = emailTxt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); done(); }catch(err){}
+      document.body.removeChild(ta);
+    }
+  });
 })();
 </script>
 </body>
