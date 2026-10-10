@@ -1678,7 +1678,7 @@
    1) Set MUSIC_FILE to your own licensed audio file to use it as the background track.
    2) If MUSIC_FILE is empty (or fails to load), an original heroic, city-night
       groove is generated live with the Web Audio API.
-   Hover and click sounds are always generated ("thwip" web-shooter style swooshes). */
+   Hover sounds are a generated metal hammer clank; click sounds are generated "thwip" swooshes. */
 (function(){
   var MUSIC_FILE = '';        // e.g. 'audio/brand-new-day.mp3'  (file you have the rights to use)
   var FILE_VOLUME = 0.5;      // 0 to 1, volume for MUSIC_FILE
@@ -2045,17 +2045,57 @@
     o.start(t); o.stop(t + 0.25);
   }
 
+  /* Bright metallic hammer clank. Tuned from a spectrum analysis of the reference sound:
+     little energy below 500 Hz, ring partials near 1.3 / 1.5 / 2.6 / 3.3 / 4.9 kHz,
+     sharp strike, long shimmering tail (scaled down here so hovers don't pile up). */
+  var CLANK = [            // [frequency Hz, relative level, decay seconds]
+    [914,  0.50, 0.09],
+    [1322, 0.90, 0.95],
+    [1494, 0.60, 1.10],
+    [2040, 0.35, 0.28],
+    [2597, 1.00, 1.40],
+    [3328, 0.60, 0.48],
+    [4932, 1.00, 0.34],
+    [5817, 0.70, 0.24],
+    [6200, 0.70, 0.26]
+  ];
+  function hammerHit(vol, pitch, ring){
+    var t = ctx.currentTime;
+    pitch = pitch || 1; ring = ring || 0.6;
+    // 1) sharp broadband strike
+    noiseHit(t, 'bandpass', 3300, vol * 1.5, 0.03, fxBus);
+    noiseHit(t, 'highpass', 4800, vol * 1.8, 0.05, fxBus);
+    // 2) tiny body knock (the reference has almost no low end)
+    var o = ctx.createOscillator(), og = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(170, t);
+    o.frequency.exponentialRampToValueAtTime(95, t + 0.04);
+    og.gain.setValueAtTime(0.0001, t);
+    og.gain.exponentialRampToValueAtTime(vol * 0.4, t + 0.002);
+    og.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
+    o.connect(og); og.connect(fxBus);
+    o.start(t); o.stop(t + 0.1);
+    // 3) ringing metal partials
+    for(var i = 0; i < CLANK.length; i++){
+      var m = ctx.createOscillator(), mg = ctx.createGain();
+      var dec = CLANK[i][2] * ring;
+      m.type = 'sine';
+      m.frequency.value = CLANK[i][0] * pitch;
+      m.detune.value = (Math.random() - 0.5) * 8;
+      mg.gain.setValueAtTime(0.0001, t);
+      mg.gain.exponentialRampToValueAtTime(vol * 0.55 * CLANK[i][1], t + 0.0015);
+      mg.gain.exponentialRampToValueAtTime(0.0001, t + dec);
+      m.connect(mg); mg.connect(fxBus);
+      m.start(t); m.stop(t + dec + 0.05);
+    }
+  }
+
   function blip(){
     if(!on || !ctx) return;
     var now = performance.now();
-    if(now - lastBlip < 90) return;
+    if(now - lastBlip < 140) return;
     lastBlip = now;
-    thwip(0.09, 0.12, 2600 + Math.random() * 900);
-    var moves = [-1, 1, 1, 2];
-    hoverIdx += moves[Math.floor(Math.random() * moves.length)];
-    if(hoverIdx < 0) hoverIdx = 1;
-    if(hoverIdx > HOVER.length - 1) hoverIdx = HOVER.length - 2;
-    ping(HOVER[hoverIdx], 0.03);
+    hammerHit(0.1, 0.97 + Math.random() * 0.06, 0.6);   // pitch varies slightly each hover
   }
 
   function impact(){
