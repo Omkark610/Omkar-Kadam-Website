@@ -204,6 +204,22 @@
   .nav-cta.solid{background:var(--teal); border-color:var(--teal); color:var(--ink-900); font-weight:600;}
   .nav-cta.solid:hover{background:var(--teal-light); border-color:var(--teal-light);}
   .nav-cta .ico{display:inline-block; margin-right:6px; font-size:11px;}
+  /* Hire me: beacon ripple glow */
+  #hireBtn{
+    position:relative;
+    box-shadow:0 0 0 1px rgba(224,149,94,.25), 0 0 14px rgba(224,149,94,.45), inset 0 0 10px rgba(224,149,94,.15);
+  }
+  #hireBtn::before, #hireBtn::after{
+    content:""; position:absolute; inset:0; border-radius:3px; pointer-events:none;
+    border:2px solid var(--teal-light); opacity:0;
+    animation:hireRing 2.6s ease-out infinite;
+  }
+  #hireBtn::after{animation-delay:1.3s;}
+  @keyframes hireRing{
+    0%{inset:0; opacity:.8;}
+    100%{inset:-12px; opacity:0; border-radius:12px;}
+  }
+  @media (prefers-reduced-motion:reduce){ #hireBtn::before, #hireBtn::after{animation:none; display:none;} }
   .nav-toggle{display:none;}
 
   /* ---------- HERO ---------- */
@@ -437,6 +453,49 @@
   .edu-score b{display:block; font-size:26px; color:var(--teal-light); font-family:'Space Grotesk',sans-serif;}
   .edu-score span{font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em;}
 
+  /* ---------- ACHIEVEMENTS ---------- */
+  .ach-card{
+    border:1px solid var(--border-soft); border-radius:8px; padding:26px 30px; background:var(--ink-850);
+    display:flex; flex-direction:column; gap:18px; align-items:flex-start;
+  }
+  .ach-card{
+    --amber:#f59e42;
+    position:relative; border-color:var(--amber);
+    box-shadow:0 0 0 1px rgba(245,158,66,.25), 0 0 18px rgba(245,158,66,.30), inset 0 0 22px rgba(245,158,66,.08);
+    transition:transform .25s;
+  }
+  .ach-card:hover{transform:translateY(-3px);}
+  /* beacon ripples radiating from the card edge */
+  .ach-card::before, .ach-card::after{
+    content:""; position:absolute; inset:0; border-radius:8px; pointer-events:none;
+    border:2px solid var(--amber); opacity:0;
+    animation:beaconRing 2.8s ease-out infinite;
+  }
+  .ach-card::after{animation-delay:1.4s;}
+  @keyframes beaconRing{
+    0%{inset:0; opacity:.75;}
+    100%{inset:-22px; opacity:0; border-radius:26px;}
+  }
+  /* blinking map-style beacon dot */
+  .beacon{position:relative; display:inline-block; flex-shrink:0; margin-left:4px; width:10px; height:10px; border-radius:50%;
+    background:var(--amber); box-shadow:0 0 10px 2px rgba(245,158,66,.8); animation:beaconBlink 1.4s ease-in-out infinite;}
+  .beacon::before, .beacon::after{
+    content:""; position:absolute; inset:0; border-radius:50%; border:2px solid var(--amber);
+    animation:beaconPing 2.1s ease-out infinite;
+  }
+  .beacon::after{animation-delay:1.05s;}
+  @keyframes beaconBlink{0%,100%{opacity:1;} 50%{opacity:.35;}}
+  @keyframes beaconPing{0%{transform:scale(1); opacity:.9;} 100%{transform:scale(3.2); opacity:0;}}
+  @media (prefers-reduced-motion:reduce){ .ach-card::before, .ach-card::after, .beacon, .beacon::before, .beacon::after{animation:none;} .ach-card::before,.ach-card::after{display:none;} }
+  .ach-card p{font-family:'Space Grotesk',sans-serif; font-style:italic; font-size:17px; line-height:1.65; color:var(--parchment);}
+  .ach-proof{
+    align-self:flex-end;
+    display:inline-flex; align-items:center; gap:10px;
+    font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--teal-light);
+    border:1px solid var(--teal-light); border-radius:999px; padding:8px 16px; transition:transform .2s;
+  }
+  .ach-proof:hover{transform:translateY(-2px);}
+
   /* ---------- CONTACT ---------- */
   .contact-wrap{
     display:grid; grid-template-columns:1fr 1fr; gap:50px; align-items:center;
@@ -662,9 +721,10 @@
   /* ---------- SOUND TOGGLE ---------- */
   .sound-toggle{
     position:fixed; right:20px; bottom:20px; z-index:60;
-    display:flex; align-items:center; gap:10px;
-    padding:10px 16px 10px 14px; border-radius:30px;
+    display:flex; align-items:center; justify-content:center;
+    width:48px; height:48px; padding:0; border-radius:50%;
     background:rgba(18,22,29,0.88); backdrop-filter:blur(10px);
+    box-shadow:0 0 0 1px rgba(224,149,94,.25), 0 0 14px rgba(224,149,94,.4), inset 0 0 10px rgba(224,149,94,.12);
     border:1px solid var(--teal-light); color:var(--teal-light);
     font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.06em;
     cursor:pointer; transition:background .2s, color .2s;
@@ -679,7 +739,18 @@
   .sound-toggle.on .eq i:nth-child(3){animation-delay:.36s;}
   .sound-toggle.on .eq i:nth-child(4){animation-delay:.54s;}
   @keyframes eq-bar{0%,100%{height:3px;} 50%{height:14px;}}
-  .sound-toggle.hint{animation:sound-pulse 2.2s ease-out infinite;}
+  /* beacon ripple rings (only while sound is on) */
+  .sound-toggle::before, .sound-toggle::after{
+    content:""; position:absolute; inset:0; border-radius:50%; pointer-events:none;
+    border:2px solid var(--teal-light); opacity:0;
+  }
+  .sound-toggle.on::before, .sound-toggle.on::after{animation:soundRing 2.6s ease-out infinite;}
+  .sound-toggle.on::after{animation-delay:1.3s;}
+  @keyframes soundRing{
+    0%{inset:0; opacity:.8;}
+    100%{inset:-14px; opacity:0;}
+  }
+  .sound-toggle.hint{animation:none;}
   @keyframes sound-pulse{
     0%{box-shadow:0 0 0 0 rgba(224,149,94,0.55);}
     100%{box-shadow:0 0 0 16px rgba(224,149,94,0);}
@@ -687,10 +758,10 @@
   @media (prefers-reduced-motion: reduce){
     .sound-toggle.on .eq i{animation:none; height:9px;}
     .sound-toggle.hint{animation:none;}
+    .sound-toggle.on::before, .sound-toggle.on::after{animation:none; display:none;}
   }
   @media (max-width:560px){
-    .sound-toggle{right:12px; bottom:12px; padding:10px 13px;}
-    .sound-toggle .st-label{display:none;}
+    .sound-toggle{right:12px; bottom:12px;}
   }
 
   /* ---------- SOUND TOOLTIP ---------- */
@@ -795,6 +866,7 @@
       <li><a href="#projects">Projects</a></li>
       <li><a href="#skills">Skills</a></li>
       <li><a href="#certifications">Certifications</a></li>
+      <li><a href="#achievements" style="font-style:italic;">Achievements</a></li>
       <li><a href="#social">Connect</a></li>
     </ul></nav>
     <div class="nav-actions">
@@ -1467,6 +1539,19 @@
   </div>
 </section>
 
+<section id="achievements">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Achievements</div>
+      <h2>Beyond the codebase</h2>
+    </div>
+    <div class="ach-card">
+      <p>Successfully proposed product improvement ideas aimed at enhancing user engagement and overall product experience across various platforms, including X, Meta, CRED, ICICI Direct, IL Take Care (ICICI Insurance), and several others.</p>
+      <a class="ach-proof" href="https://x.com/omkark610/status/2018071917622898748?s=20" target="_blank" rel="noopener">View proof on X <span class="beacon" aria-hidden="true"></span></a>
+    </div>
+  </div>
+</section>
+
 <section id="social">
   <div class="wrap">
     <div class="section-head">
@@ -1529,7 +1614,6 @@
 
 <button type="button" class="sound-toggle hint" id="soundToggle" aria-pressed="false" aria-label="Turn music on" aria-describedby="soundTip">
   <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-  <span class="st-label">Sound off</span>
 </button>
 
 <div class="sound-tip" id="soundTip" role="tooltip">
@@ -1792,7 +1876,7 @@
 
   var AC = window.AudioContext || window.webkitAudioContext;
   var btn = document.getElementById('soundToggle');
-  var label = btn.querySelector('.st-label');
+  var label = btn.querySelector('.st-label'); // removed from markup (icon-only)
   if(!AC){ btn.style.display = 'none'; return; }
 
   var KEY = 'ok-sound-pref';
@@ -2090,7 +2174,7 @@
     btn.classList.remove('hint');
     btn.setAttribute('aria-pressed', state ? 'true' : 'false');
     btn.setAttribute('aria-label', state ? 'Turn music off' : 'Turn music on');
-    label.textContent = state ? 'Sound on' : 'Sound off';
+    if (label) label.textContent = state ? 'Sound on' : 'Sound off';
     try{ localStorage.setItem(KEY, state ? 'on' : 'off'); }catch(e){}
     renderTip();
     if(state) flashTip();
